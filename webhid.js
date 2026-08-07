@@ -507,19 +507,38 @@ el('connectBtn').addEventListener('click', async () => {
     }
     device = target;
 
+    // The mouse reports a DIFFERENT product ID depending on how it's
+    // connected — confirmed via real USB capture: 0xfb44 = via the 2.4GHz
+    // dongle, 0xfb43 = wired (USB-C cable direct). Both work identically
+    // for every command in this tool; this just makes the label accurate.
+    // 0xfb43 = wired, 0xfb44 = 2.4GHz dongle — both confirmed via real USB
+    // captures. Anything else (e.g. Bluetooth direct pairing, which we
+    // can't capture at the USB level to confirm) gets flagged honestly
+    // rather than guessed at.
+    let connType, connDetail;
+    if(device.productId === 0xfb43){ connType = 'Wired'; connDetail = 'USB-C'; }
+    else if(device.productId === 0xfb44){ connType = 'Wireless'; connDetail = '2.4GHz receiver'; }
+    else { connType = 'Unknown mode'; connDetail = `pid=0x${device.productId.toString(16)} — possibly Bluetooth, unconfirmed`; }
+    const isWired = device.productId === 0xfb43;
+
     statusDot.className = 'dot on';
     statusText.textContent = 'CONNECTED';
-    el('connVal').textContent = 'Wireless';
-    el('connSub').textContent = device.productName || 'HID device';
-    el('fwVal').textContent = 'Unknown';
-    el('fwSub').textContent = 'Not exposed until protocol is mapped';
+    el('connVal').textContent = connType;
+    el('connSub').textContent = (device.productName || 'HID device') + ' · ' + connDetail;
+    // Firmware version isn't queryable live — WebHID doesn't expose the
+    // USB device descriptor's bcdDevice field, only vendorId/productId/
+    // productName/collections. This value (2.02) is from a real capture
+    // of your unit's descriptor, not a live read — won't auto-update if
+    // you ever flash new firmware.
+    el('fwVal').textContent = '2.02';
+    el('fwSub').textContent = 'From USB descriptor (not live — see note)';
     el('batteryVal').textContent = 'reading…';
     saveBtn.disabled = false;
     el('connectBtn').textContent = 'Reconnect';
 
     el('sbDot').className = 'dot on';
     el('sbName').textContent = device.productName || 'Attack Shark Mouse';
-    el('sbSub').textContent = 'Attack Shark · Connected';
+    el('sbSub').textContent = `Attack Shark · ${connType}`;
 
     opened.forEach(d => {
       d.addEventListener('inputreport', e => {
@@ -565,7 +584,7 @@ el('connectBtn').addEventListener('click', async () => {
       }
     }catch(e){ /* will fall back to the passive heartbeat listener above */ }
 
-    logLine('in', `opened "${device.productName}" — ${opened.length} collection(s) live, report-8 support: yes`);
+    logLine('in', `opened "${device.productName}" — vid=0x${device.vendorId.toString(16)} pid=0x${device.productId.toString(16)} — ${opened.length} collection(s) live, report-8 support: yes`);
   }catch(err){
     statusDot.className = 'dot err';
     statusText.textContent = 'CONNECTION FAILED';
