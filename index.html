@@ -11,8 +11,13 @@
 <body>
 
 <div class="sidebar">
-  <div class="sb-eyebrow">Attack Shark</div>
-  <div class="sb-title">R11 Ultra</div>
+  <div class="sb-top-row">
+    <div>
+      <div class="sb-eyebrow">Attack Shark</div>
+      <div class="sb-title">R11 Ultra</div>
+    </div>
+    <button id="settingsBtn" class="settings-icon-btn" title="Interface settings">☰</button>
+  </div>
 
   <div class="sb-label">Connected device</div>
   <div class="device-card">
@@ -465,6 +470,38 @@
   </div>
 
   <!-- Remap popup -->
+  <div class="settings-overlay" id="settingsOverlay">
+    <div class="settings-panel">
+      <div class="settings-header">
+        <div>
+          <div class="sb-eyebrow" style="margin-bottom:2px;">OpenMouse</div>
+          <div class="settings-title">Interface settings</div>
+        </div>
+        <button id="settingsClose" class="settings-back-btn">Back to device</button>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-label">Appearance</div>
+        <div class="settings-card-title">Color mode</div>
+        <div class="settings-card-sub">Choose how this tool looks — follow your system, or pick one directly.</div>
+        <div class="theme-picker">
+          <button class="theme-opt" data-theme="light">
+            <span class="theme-swatch theme-swatch-light"></span>
+            White
+          </button>
+          <button class="theme-opt active" data-theme="dark">
+            <span class="theme-swatch theme-swatch-dark"></span>
+            Black
+          </button>
+          <button class="theme-opt" data-theme="system">
+            <span class="theme-swatch theme-swatch-system"></span>
+            System
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="remap-overlay" id="remapOverlay">
     <div class="remap-panel">
       <div class="remap-tabs">

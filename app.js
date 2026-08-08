@@ -402,3 +402,40 @@ setTimeout(() => {
 // Battery is now fetched automatically on connect (see webhid.js connect
 // flow) — no manual button needed anymore.
 
+/* ---------------- Interface settings: theme (White/Black/System) ---------------- */
+const THEME_STORAGE_KEY = 'r11ultra_theme_mode';
+const systemDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+function applyTheme(mode){
+  const useLight = mode === 'light' || (mode === 'system' && !systemDarkQuery.matches);
+  document.body.classList.toggle('theme-light', useLight);
+  document.querySelectorAll('.theme-opt').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.theme === mode);
+  });
+}
+
+function setThemeMode(mode){
+  try{ localStorage.setItem(THEME_STORAGE_KEY, mode); }catch(e){}
+  applyTheme(mode);
+}
+
+function getStoredThemeMode(){
+  try{ return localStorage.getItem(THEME_STORAGE_KEY) || 'dark'; }catch(e){ return 'dark'; }
+}
+
+document.querySelectorAll('.theme-opt').forEach(btn => {
+  btn.addEventListener('click', () => setThemeMode(btn.dataset.theme));
+});
+
+// If the user has "System" selected, follow OS theme changes live
+systemDarkQuery.addEventListener('change', () => {
+  if(getStoredThemeMode() === 'system') applyTheme('system');
+});
+
+applyTheme(getStoredThemeMode());
+
+el('settingsBtn').addEventListener('click', () => el('settingsOverlay').classList.add('open'));
+el('settingsClose').addEventListener('click', () => el('settingsOverlay').classList.remove('open'));
+el('settingsOverlay').addEventListener('click', e => {
+  if(e.target.id === 'settingsOverlay') el('settingsOverlay').classList.remove('open');
+});
